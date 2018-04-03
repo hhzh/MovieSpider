@@ -11,7 +11,7 @@ class YinfansSpider(scrapy.Spider):
     start_urls = ['http://www.yinfans.com/']
 
     def parse(self, response):
-        li_items = response.xpath('//div[@class="container"]/div[@class="mainleft"]/ul[@id="post_container]/li')
+        li_items = response.xpath('//div[@class="container"]/div[@class="mainleft"]/ul[@id="post_container"]/li')
         for li_item in li_items:
             thumbnail_item = li_item.xpath('div[@class="thumbnail"]/a')
             origin_url = thumbnail_item.xpath("@href").extract_first('')
@@ -27,13 +27,20 @@ class YinfansSpider(scrapy.Spider):
                                                 'publish_date': publish_date, 'read_count': read_count,
                                                 'comment_count': 'comment_count', 'category': category},
                           callback=self.parse_detail)
-            next_url = response.xpath('//div[@class="pagination"]/a[@class="next"]/@href').extract_first('')
-            if next_url:
-                yield Request(url=next_url, callback=self.parse)
+            # next_url = response.xpath('//div[@class="pagination"]/a[@class="next"]/@href').extract_first('')
+            # if next_url:
+            #     yield Request(url=next_url, callback=self.parse)
 
     def parse_detail(self, response):
         item = YinfansItem()
-        article_container = response.xpath(
-            '//div[@class="container"]/div[@id="content"]/div[contains(@class,"artcile_container")]')
-        post_content = article_container.xpath('div[@class="context"]/div[@id="post_content"]')
+        # article_container = response.xpath(
+        #     '//div[@class="container"]/div[@id="content"]/div[contains(@class,"artcile_container")]')
+        # post_content = article_container.xpath('div[@class="context"]/div[@id="post_content"]')
+        # poster = post_content.xpath('p[0]/a/@href').extract_first('')
+        post_content = response.xpath('//div[@id="post_content"]/p')
         poster = post_content.xpath('p[0]/a/@href').extract_first('')
+        for p_list in post_content:
+            a_href = p_list.xpath('a/@href').extract_first('')
+            all_text = p_list.xpath(
+                'strong/text() | strong/a/Href | strong/text() | strong/a/b/text() | strong/a/text()').extract_first('')
+            content_text=p_list.xpath('text()').extract()

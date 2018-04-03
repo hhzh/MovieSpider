@@ -38,7 +38,7 @@ class YinfansSpider(scrapy.Spider):
         # post_content = article_container.xpath('div[@class="context"]/div[@id="post_content"]')
         # poster = post_content.xpath('p[0]/a/@href').extract_first('')
         post_content = response.xpath('//div[@id="post_content"]/p')
-        poster = post_content.xpath('p[0]/a/@href').extract_first('')
+        poster = post_content.xpath('a/@href').extract_first('')
         for p_list in post_content:
             a_href = p_list.xpath('a/@href').extract_first('')
             all_text = p_list.xpath(

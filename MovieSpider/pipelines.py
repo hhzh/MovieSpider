@@ -14,7 +14,7 @@ class MoviespiderPipeline(object):
     def process_item(self, item, spider):
         for field in item.fields:
             item.setdefault(field, '')
-        movie_sql = "insert into movie (name,title,aka,origin_url,cover,directors,writers,actors,movie_type,rating," \
+        movie_sql = "insert into movie (name,title,aka,origin_url,poster,directors,writers,actors,category,rating," \
                     "officia_website,douban_url,intro,lang,countries,year,mins,IMDb,IMDb_rating,awards,printscreen," \
                     "publish_date,read_count,comment_count,website_url,website_name,sharpness,tags,download_name," \
                     "download_url,pan_name,pan_url,pan_pwd) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s," \
@@ -68,7 +68,7 @@ class MysqlTwistedPipeline(object):
     def do_insert(self, cursor, item):
         for field in item.fields:
             item.setdefault(field, '')
-        movie_sql = "insert into movie (name,title,aka,origin_url,cover,directors,writers,actors,movie_type,rating," \
+        movie_sql = "insert into movie (name,title,aka,origin_url,poster,directors,writers,actors,category,rating," \
                     "officia_website,douban_url,intro,lang,countries,year,mins,IMDb,IMDb_rating,awards,printscreen," \
                     "publish_date,read_count,comment_count,website_url,website_name,sharpness,tags,download_name," \
                     "download_url,pan_name,pan_url,pan_pwd) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s," \

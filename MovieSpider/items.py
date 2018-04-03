@@ -28,15 +28,19 @@ def get_list(value):
 
 
 class MoviespiderItem(scrapy.Item):
+    pass
+
+
+class YinfansItem(scrapy.Item):
     name = scrapy.Field()
     title = scrapy.Field()
     aka = scrapy.Field()
     origin_url = scrapy.Field()
-    cover = scrapy.Field()
+    poster = scrapy.Field()
     directors = scrapy.Field()
     writers = scrapy.Field()
     actors = scrapy.Field()
-    movie_type = scrapy.Field()
+    category = scrapy.Field()
     rating = scrapy.Field()
     officia_website = scrapy.Field()
     douban_url = scrapy.Field()
@@ -63,4 +67,3 @@ class MoviespiderItem(scrapy.Item):
     pan_name = scrapy.Field()
     pan_url = scrapy.Field()
     pan_pwd = scrapy.Field()
-    pass

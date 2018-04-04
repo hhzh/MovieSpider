@@ -48,6 +48,7 @@ class YinfansItem(scrapy.Item):
     lang = scrapy.Field()
     countries = scrapy.Field()
     year = scrapy.Field()
+    release_data = scrapy.Field()
     mins = scrapy.Field()
     IMDb = scrapy.Field()
     IMDb_rating = scrapy.Field()
@@ -59,9 +60,7 @@ class YinfansItem(scrapy.Item):
     website_url = scrapy.Field()
     website_name = scrapy.Field()
     sharpness = scrapy.Field()
-    tags = scrapy.Field(
-        output_processor=Join(',')
-    )
+    tags = scrapy.Field()
     download_name = scrapy.Field()
     download_url = scrapy.Field()
     pan_name = scrapy.Field()

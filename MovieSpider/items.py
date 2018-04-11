@@ -23,8 +23,13 @@ def get_nums(value):
     return nums
 
 
+def join_str(value):
+    return ','.join(value)
+
+
 def get_list(value):
     return [value]
+
 
 class MoviespiderItem(scrapy.Item):
     pass
@@ -53,9 +58,7 @@ class YinfansItem(scrapy.Item):
     IMDb = scrapy.Field()
     IMDb_rating = scrapy.Field()
     awards = scrapy.Field()
-    printscreen = scrapy.Field(
-        output_processor=Join(',')
-    )
+    printscreen = scrapy.Field()
     publish_date = scrapy.Field()
     read_count = scrapy.Field()
     comment_count = scrapy.Field()

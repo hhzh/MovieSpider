@@ -27,9 +27,9 @@ class YinfansSpider(scrapy.Spider):
                                                 'publish_date': publish_date, 'read_count': read_count,
                                                 'comment_count': comment_count, 'category': category},
                           callback=self.parse_detail)
-            # next_url = response.xpath('//div[@class="pagination"]/a[@class="next"]/@href').extract_first('')
-            # if next_url:
-            #     yield Request(url=next_url, callback=self.parse)
+            next_url = response.xpath('//div[@class="pagination"]/a[@class="next"]/@href').extract_first('')
+            if next_url:
+                yield Request(url=next_url, callback=self.parse)
 
     def parse_detail(self, response):
         item = YinfansItem()
@@ -37,7 +37,7 @@ class YinfansSpider(scrapy.Spider):
         #     '//div[@class="container"]/div[@id="content"]/div[contains(@class,"artcile_container")]')
         # post_content = article_container.xpath('div[@class="context"]/div[@id="post_content"]')
         # poster = post_content.xpath('p[0]/a/@href').extract_first('')
-        post_content = response.xpath('//div[@id="post_content"]/p')
+        post_content = response.xpath('//div[@id="post_content"]/p | //div[@id="post_content"]/div | //div[@id="post_content"]/div/p')
         poster = post_content.xpath('a[contains(@href,".jpg")]/@href').extract_first('')
         content_text = []
         sharpness_id = 0
@@ -45,11 +45,18 @@ class YinfansSpider(scrapy.Spider):
         link_list = []
         content_img = []
         for p_list in post_content:
-            strong_text = p_list.xpath('strong/text()').extract_first('')
+            strong_text_ori = p_list.xpath(
+                'strong[last()]/text() | text() |strong[last()]/strong/text()').extract()
             link_url = p_list.xpath('strong/a[contains(@href,"magnet")]/@href').extract_first('')
-            link_name = p_list.xpath('strong/a/b/text()').extract_first('')
+            link_name = p_list.xpath('strong/a/b/text() | strong/a[contains(@href,"magnet")]/text()').extract_first(
+                '').strip()
             movie_size = '0GB'
-            if strong_text:
+            strong_text = [x for x in strong_text_ori if x.strip() != '']
+            if len(strong_text):
+                if len(strong_text) == 2 and strong_text == 'GB':
+                    strong_text = strong_text[0] + strong_text[1]
+                else:
+                    strong_text = strong_text[-1].strip()
                 if strong_text.startswith('4K MKV'):
                     sharpness_id = 1
                     sharpness_name = '4K MKV磁力链'
@@ -68,16 +75,19 @@ class YinfansSpider(scrapy.Spider):
                 elif strong_text.startswith('3D高清MKV'):
                     sharpness_id = 6
                     sharpness_name = '3D高清MKV磁力链'
-                elif 'GB' in strong_text or 'MB' in strong_text:
+                elif 'G' in strong_text or 'M' in strong_text:
                     movie_size = strong_text
 
-            if link_url and link_name:
+            if link_url:
+                # if movie_size == '0GB' or movie_size == 'GB':
+                #     print('-------' + str(response.url) + str(strong_text) + '----' + str(strong_text_ori))
                 link_list.append({'name': link_name, 'link': link_url, 'size': movie_size, 'sharpness_id': sharpness_id,
                                   'sharpness_name': sharpness_name})
             # movie_size=p_list.xpath('strong/text()')
             # all_text = p_list.xpath(
             #     'strong/text() | strong/a/@href | strong/text() | strong/a/b/text() | strong/a/text()').extract_first('')
-            content_text_temp = p_list.xpath('text() | span[@class="attrs"]/text()').extract()
+            content_text_temp = p_list.xpath(
+                'text() | span/text() | div/text() | span/span/text() | span/span/span/text() | div/div/div/p/text()').extract()
             if content_text_temp:
                 content_text.extend(content_text_temp)
             content_img_temp = p_list.xpath('a/img/@src').extract()
@@ -102,19 +112,23 @@ class YinfansSpider(scrapy.Spider):
         item['website_url'] = 'http://www.yinfans.com'
         item['website_name'] = '音范丝'
         item['poster'] = poster
-        item['printscreen'] = content_img
+        item['printscreen'] = ','.join(content_img)
 
         if content_text:
             new_content = []
             for content_temp in content_text:
                 content_temp = content_temp.strip().replace(' ', '')
                 content_temp = content_temp.replace('　', '')
-                if content_temp.startswith('◎'):
+                content_temp = content_temp.replace('\xa0', '')
+                content_temp = content_temp.replace('：', '')
+                content_temp = content_temp.replace(':', '')
+                if content_temp.startswith('◎') or content_temp.startswith('【'):
                     new_content.append(content_temp)
                 elif len(new_content) > 0:
                     last_element = new_content.pop()
                     new_content.append(last_element + '/' + content_temp)
-
+            # if response.url == 'http://www.yinfans.com/movie/12034':
+            #     item['aka'] = str(new_content)
             for sub_content in new_content:
                 # sub_content = sub_content.strip().replace(' ', '')
                 # sub_content = sub_content.replace('　', '')
@@ -150,4 +164,26 @@ class YinfansSpider(scrapy.Spider):
                     item['intro'] = sub_content[3:]
                 elif '◎获奖情况' in sub_content:
                     item['awards'] = sub_content[5:]
+                elif '【中文译名】' in sub_content:
+                    item['aka'] = sub_content[6:]
+                elif '【影片原名】' in sub_content:
+                    item['name'] = sub_content[6:]
+                elif '【出品年代】' in sub_content:
+                    item['year'] = sub_content[6:]
+                elif '【国家】' in sub_content:
+                    item['countries'] = sub_content[4:]
+                elif '【类别】' in sub_content:
+                    item['tags'] = sub_content[4:]
+                elif '【语言】' in sub_content:
+                    item['lang'] = sub_content[4:]
+                elif '【上映日期】' in sub_content:
+                    item['release_date'] = sub_content[6:]
+                elif '【IMDB评分】' in sub_content:
+                    item['IMDb_rating'] = sub_content[8:]
+                elif '【导演】' in sub_content:
+                    item['directors'] = sub_content[4:]
+                elif '【主演】' in sub_content:
+                    item['actors'] = sub_content[4:]
+                elif '【内容简介】' in sub_content:
+                    item['intro'] = sub_content[6:]
         yield item

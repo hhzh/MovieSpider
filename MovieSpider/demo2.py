@@ -12,7 +12,7 @@ app_master_secret = 'sqkmkiib7evegs9qu63qyw6z17gvmqek'
 method = 'POST'
 url = 'http://msg.umeng.com/api/send'
 # params = '{"appkey":"597aaa8c45297d254a000147","timestamp":"1523354746553","type":"broadcast","payload":{"display_type":"notification","body":{"ticker":"xddddd","title":"xxxdddd","text":"xxxddd","play_vibrate":true,"play_lights":true,"play_sound":true,"after_open":"go_app"}},"policy":{"start_time":"2018-04-10 18:40:00"},"production_mode":true,"description":"xxxxdd"}'
-timestamp = '1523437501216'
+timestamp = '1523517027749'
 method = 'POST'
 url = 'http://msg.umeng.com/api/send'
 params = {'appkey': appkey,
@@ -20,7 +20,7 @@ params = {'appkey': appkey,
           'type': 'broadcast',
           'production_mode': False,
           'payload': {'body': {'ticker': 'Hello World字符',
-                               'title': '文章中文',
+                               'title': '你好你好',
                                'text': 'ccccccc中文',
                                'after_open': 'go_app'},
                       'display_type': 'notification'
